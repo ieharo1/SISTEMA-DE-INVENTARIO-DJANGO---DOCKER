@@ -1,142 +1,86 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>
-            {% block title %}Sistema de Inventario{% endblock %}
-        </title>
-        <!-- Bootstrap 5 -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-              rel="stylesheet">
-        <!-- Bootstrap Icons -->
-        <link rel="stylesheet"
-              href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-        {% block extra_css %}{% endblock %}
-    </head>
-    <body class="bg-light">
-        {% if user.is_authenticated %}
-            <!-- Navbar para usuarios autenticados -->
-            <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-                <div class="container-fluid">
-                    <a class="navbar-brand" href="{% url 'dashboard' %}">
-                        <i class="bi bi-box-seam"></i> {{ company_name }}
-                    </a>
-                    <button class="navbar-toggler"
-                            type="button"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#navbarNav">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav me-auto">
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'dashboard' %}">
-                                    <i class="bi bi-speedometer2"></i> Dashboard
-                                </a>
-                            </li>
-                            {% if perms.products.view_product %}
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'products:product_list' %}">
-                                        <i class="bi bi-box"></i> Productos
-                                    </a>
-                                </li>
-                            {% endif %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'warehouses:warehouse_list' %}">
-                                    <i class="bi bi-building"></i> Bodegas
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'suppliers:supplier_list' %}">
-                                    <i class="bi bi-truck"></i> Proveedores
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'inventory:inventory_list' %}">
-                                    <i class="bi bi-clipboard-data"></i> Inventario
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle"
-                                   href="#"
-                                   role="button"
-                                   data-bs-toggle="dropdown">
-                                    <i class="bi bi-arrow-left-right"></i> Movimientos
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'movements:movement_list' %}">Todos</a>
-                                    </li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item"
-                                           href="{% url 'movements:movement_create' 'IN' %}">Entrada</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item"
-                                           href="{% url 'movements:movement_create' 'OUT' %}">Salida</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item"
-                                           href="{% url 'movements:movement_create' 'TRANSFER' %}">Transferencia</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item"
-                                           href="{% url 'movements:movement_create' 'ADJUST' %}">Ajuste</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                        <ul class="navbar-nav">
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle"
-                                   href="#"
-                                   role="button"
-                                   data-bs-toggle="dropdown">
-                                    <i class="bi bi-person-circle"></i> {{ user.get_full_name|default:user.username }}
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'users:profile' %}">
-                                            <i class="bi bi-person"></i> Mi Perfil
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'users:logout' %}">
-                                            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-        {% endif %}
-        <!-- Messages -->
-        <div class="container-fluid mt-3">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
-                         role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Dashboard{% endblock %} | Sistema de Inventarios by TST Solutions</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}" />
+  <meta name="application-name" content="Sistema de Inventarios by TST Solutions" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="{% static 'css/admin.css' %}" />
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  {% if user.is_authenticated %}
+  <div class="app-shell">
+    <aside id="sidebar" class="sidebar collapse d-lg-block">
+      <div class="brand">
+        <span class="brand-mark"><i class="bi bi-box-seam"></i></span>
+        <div>
+          <div class="brand-title">TST Solutions</div>
+          <small class="brand-subtitle">{{ company_name }}</small>
         </div>
-        <!-- Main Content -->
-        <main class="container-fluid py-4">
-            {% block content %}{% endblock %}
-        </main>
-        <!-- Scripts -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        {% block extra_js %}{% endblock %}
-    </body>
+      </div>
+      <div class="nav-section-title">Menu</div>
+      <nav class="nav flex-column">
+        <a class="nav-link {% if '/dashboard' in request.path %}active{% endif %}" href="{% url 'dashboard' %}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a class="nav-link {% if '/products/' in request.path and '/products/categories/' not in request.path %}active{% endif %}" href="{% url 'products:product_list' %}"><i class="bi bi-box"></i> Productos</a>
+        <a class="nav-link {% if '/products/categories' in request.path %}active{% endif %}" href="{% url 'products:category_list' %}"><i class="bi bi-tags"></i> Categorias</a>
+        <a class="nav-link {% if '/suppliers' in request.path %}active{% endif %}" href="{% url 'suppliers:supplier_list' %}"><i class="bi bi-truck"></i> Proveedores</a>
+        <a class="nav-link {% if '/inventory' in request.path %}active{% endif %}" href="{% url 'inventory:inventory_list' %}"><i class="bi bi-clipboard-data"></i> Inventario</a>
+        <a class="nav-link {% if '/movements' in request.path %}active{% endif %}" href="{% url 'movements:movement_list' %}"><i class="bi bi-arrow-left-right"></i> Movimientos</a>
+        <a class="nav-link {% if '/reports' in request.path %}active{% endif %}" href="{% url 'reports:dashboard' %}"><i class="bi bi-bar-chart"></i> Reportes</a>
+        <a class="nav-link {% if '/users' in request.path %}active{% endif %}" href="{% url 'users:user_list' %}"><i class="bi bi-people"></i> Usuarios</a>
+        <a class="nav-link {% if '/audit' in request.path %}active{% endif %}" href="{% url 'audit:audit_list' %}"><i class="bi bi-journal-text"></i> Auditoria</a>
+        <a class="nav-link {% if '/users/about' in request.path %}active{% endif %}" href="{% url 'users:about' %}"><i class="bi bi-info-circle"></i> About</a>
+      </nav>
+      <a class="btn btn-outline-danger btn-sm w-100 mt-3" href="{% url 'users:logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </aside>
+
+    <section class="main-panel">
+      <header class="topbar d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-theme btn-sm d-lg-none" data-bs-toggle="collapse" data-bs-target="#sidebar"><i class="bi bi-list"></i></button>
+          <div>
+            <strong>{{ user.get_full_name|default:user.username }}</strong>
+            <div class="small text-muted">{{ user.role }}</div>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <button id="themeToggle" class="btn btn-theme btn-sm" type="button"><i id="themeIcon" class="bi bi-moon-stars"></i> <span id="themeText">Modo oscuro</span></button>
+          <a class="btn btn-outline-secondary btn-sm" href="{% url 'users:profile' %}"><i class="bi bi-person"></i> Perfil</a>
+        </div>
+      </header>
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb panel p-2 px-3 mb-0"><li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li><li class="breadcrumb-item active" aria-current="page">Sistema</li></ol></nav>
+  {% else %}
+  <div class="auth-shell"><div class="w-100" style="max-width:560px;">
+  {% endif %}
+
+  {% if messages %}
+  <div class="mb-3">{% for message in messages %}<div class="alert alert-{{ message.tags }} alert-dismissible fade show app-alert" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>{% endfor %}</div>
+  {% endif %}
+
+  <main class="panel p-3 p-lg-4">{% block content %}{% endblock %}</main>
+
+  {% if user.is_authenticated %}
+      <footer class="footer-mini mt-3">
+        <span>&copy; 2026 TST Solutions</span>
+        <span>Sistema de Inventarios by TST Solutions</span>
+      </footer>
+    </section>
+  </div>
+  {% else %}
+  </div></div>
+  {% endif %}
+
+  <div id="loadingOverlay" class="loading-overlay d-none"><div class="spinner-border text-light" role="status"></div></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'js/admin.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
 </html>

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">{{ title }}</h1>
+<form method="post" class="card card-body">
+  {% csrf_token %}
+  <div class="mb-2"><label class="form-label">Producto</label><select class="form-select" name="product" required>{% for p in products %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select></div>
+  <div class="mb-2"><label class="form-label">Bodega origen</label><select class="form-select" name="warehouse" required>{% for w in warehouses %}<option value="{{ w.id }}">{{ w.name }}</option>{% endfor %}</select></div>
+  {% if movement_type == "TRANSFER" %}<div class="mb-2"><label class="form-label">Bodega destino</label><select class="form-select" name="warehouse_to" required>{% for w in warehouses %}<option value="{{ w.id }}">{{ w.name }}</option>{% endfor %}</select></div>{% endif %}
+  <div class="mb-2"><label class="form-label">Cantidad</label><input class="form-control" type="number" min="1" name="quantity" required></div>
+  <div class="mb-2"><label class="form-label">Costo unitario</label><input class="form-control" type="number" min="0" step="0.01" value="0" name="unit_cost"></div>
+  <div class="mb-2"><label class="form-label">Referencia</label><input class="form-control" type="text" name="reference"></div>
+  <div class="mb-3"><label class="form-label">Observacion</label><textarea class="form-control" name="notes"></textarea></div>
+  <div class="d-flex gap-2"><button class="btn btn-primary" type="submit">Guardar</button><a class="btn btn-outline-secondary" href="{% url "movements:movement_list" %}">Cancelar</a></div>
+</form>
+{% endblock %}

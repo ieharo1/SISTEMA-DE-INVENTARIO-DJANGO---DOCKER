@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Inventario{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Inventario</h1>
+<table class="table table-striped"><thead><tr><th>Producto</th><th>Bodega</th><th>Cantidad</th><th>Minimo</th></tr></thead><tbody>{% for i in inventory %}<tr><td>{{ i.product.name }}</td><td>{{ i.warehouse.name }}</td><td>{{ i.quantity }}</td><td>{{ i.min_stock }}</td></tr>{% empty %}<tr><td colspan="4" class="text-center text-muted">Sin registros.</td></tr>{% endfor %}</tbody></table>
+{% endblock %}

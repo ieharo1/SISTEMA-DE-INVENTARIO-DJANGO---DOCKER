@@ -1,43 +1,54 @@
 #!/bin/bash
 set -e
 
+# Root phase: prepare mounted volumes and drop privileges to non-root user.
+if [ "$(id -u)" = "0" ]; then
+  mkdir -p /app/staticfiles /app/media /app/logs
+  chown -R app:app /app/staticfiles /app/media /app/logs /app
+  exec gosu app "$0" "$@"
+fi
+
 echo "=== INVENTORY SYSTEM STARTUP ==="
 echo "Waiting for PostgreSQL..."
 while ! nc -z db 5432; do
   sleep 1
 done
-echo "PostgreSQL started"
+echo "PostgreSQL is ready"
 
 echo "Creating cache table..."
 python manage.py createcachetable || true
 
-# Migrar apps core en orden
-echo "Migrating core apps..."
-python manage.py migrate contenttypes
-python manage.py migrate auth
-python manage.py migrate users
-python manage.py migrate admin
-python manage.py migrate sessions
+echo "Making migrations..."
+python manage.py makemigrations --noinput || true
 
-# Hacer migraciones para todas las apps
-echo "Making migrations for all apps..."
-python manage.py makemigrations products || true
-python manage.py makemigrations warehouses || true
-python manage.py makemigrations suppliers || true
-python manage.py makemigrations inventory || true
-python manage.py makemigrations movements || true
-python manage.py makemigrations audit || true
-python manage.py makemigrations reports || true
+echo "Migrating database..."
+python manage.py migrate --noinput
 
-# Migrar todas las apps
-echo "Migrating all apps..."
-python manage.py migrate
-
-echo "Creating initial data..."
-python manage.py create_initial_data || echo "Initial data already exists"
+echo "Creating roles and seed data..."
+python manage.py create_initial_data || true
 
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
-echo "Starting server..."
-exec python manage.py runserver 0.0.0.0:8000
+echo "Creating superuser if not exists..."
+python manage.py shell << EOF
+from django.contrib.auth import get_user_model
+User = get_user_model()
+username = "${DJANGO_SUPERUSER_USERNAME:-admin}"
+email = "${DJANGO_SUPERUSER_EMAIL:-admin@inventory.com}"
+password = "${DJANGO_SUPERUSER_PASSWORD:-admin123}"
+if not User.objects.filter(username=username).exists():
+    User.objects.create_superuser(username, email, password)
+    print('Superuser created')
+else:
+    print('Superuser already exists')
+EOF
+
+echo "Starting Gunicorn..."
+exec gunicorn inventory.wsgi:application \
+    --bind 0.0.0.0:8000 \
+    --workers 4 \
+    --timeout 120 \
+    --access-logfile - \
+    --error-logfile - \
+    --log-level info

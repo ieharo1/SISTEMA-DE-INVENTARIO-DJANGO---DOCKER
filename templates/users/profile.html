@@ -1,0 +1,95 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Mi perfil{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h1 class="h3 mb-1"><i class="bi bi-person-vcard"></i> Mi perfil</h1>
+    <p class="text-muted mb-0">Gestiona tu información personal y credenciales de acceso</p>
+  </div>
+  <a class="btn btn-outline-secondary" href="{% url 'password_change' %}">
+    <i class="bi bi-key"></i> Cambiar contraseña
+  </a>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-body text-center">
+        {% if user.avatar %}
+          <img src="{{ user.avatar.url }}" class="profile-avatar mb-3" alt="Avatar de {{ user.username }}">
+        {% else %}
+          <div class="profile-avatar profile-avatar-placeholder mb-3">
+            <i class="bi bi-person-fill"></i>
+          </div>
+        {% endif %}
+        <h5 class="mb-1">{{ user.get_full_name|default:user.username }}</h5>
+        <p class="text-muted mb-2">@{{ user.username }}</p>
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-2">
+          <span class="badge text-bg-primary px-3 py-2">{{ user.role|default:"Sin rol" }}</span>
+          {% if user.company %}
+            <span class="badge text-bg-secondary px-3 py-2">{{ user.company.name }}</span>
+          {% endif %}
+          {% if user.is_active %}
+            <span class="badge text-bg-success px-3 py-2">Activo</span>
+          {% else %}
+            <span class="badge text-bg-danger px-3 py-2">Inactivo</span>
+          {% endif %}
+        </div>
+        <small class="text-muted d-block">Miembro desde: {{ user.date_joined|date:"d/m/Y" }}</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <form method="post" enctype="multipart/form-data" class="card h-100">
+      <div class="card-body row g-3">
+        {% csrf_token %}
+
+        <div class="col-md-6">
+          <label class="form-label" for="id_first_name">Nombre</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}<div class="invalid-feedback d-block">{{ form.first_name.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label" for="id_last_name">Apellidos</label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}<div class="invalid-feedback d-block">{{ form.last_name.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label" for="id_email">Correo electrónico</label>
+          {{ form.email }}
+          {% if form.email.errors %}<div class="invalid-feedback d-block">{{ form.email.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label" for="id_phone">Teléfono</label>
+          {{ form.phone }}
+          {% if form.phone.errors %}<div class="invalid-feedback d-block">{{ form.phone.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label" for="id_position">Cargo</label>
+          {{ form.position }}
+          {% if form.position.errors %}<div class="invalid-feedback d-block">{{ form.position.errors|striptags }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label" for="id_avatar">Avatar</label>
+          {{ form.avatar }}
+          {% if form.avatar.errors %}<div class="invalid-feedback d-block">{{ form.avatar.errors|striptags }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="card-footer d-flex justify-content-end">
+        <button class="btn btn-primary px-4" type="submit">
+          <i class="bi bi-check2-circle"></i> Guardar cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

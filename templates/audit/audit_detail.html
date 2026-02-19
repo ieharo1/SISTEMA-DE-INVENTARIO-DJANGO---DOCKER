@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Detalle Auditoria{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Detalle auditoria</h1>
+<div class="card"><div class="card-body"><p><strong>Usuario:</strong> {{ audit.username }}</p><p><strong>Accion:</strong> {{ audit.action }}</p><p><strong>Objeto:</strong> {{ audit.object_repr }}</p><p><strong>Fecha:</strong> {{ audit.created_at }}</p></div></div>
+{% endblock %}

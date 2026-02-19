@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Eliminar Categoria{% endblock %}
+{% block content %}
+<h1 class="h3">Eliminar categoria</h1><p>Se eliminara <strong>{{ object.name }}</strong>.</p>
+<form method="post">{% csrf_token %}<button class="btn btn-danger" type="submit">Confirmar</button> <a class="btn btn-outline-secondary" href="{% url "products:category_list" %}">Cancelar</a></form>
+{% endblock %}

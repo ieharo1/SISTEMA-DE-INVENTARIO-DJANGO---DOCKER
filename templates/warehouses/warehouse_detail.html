@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Detalle Bodega{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">{{ warehouse.name }}</h1>
+<div class="card"><div class="card-body"><p><strong>Codigo:</strong> {{ warehouse.code }}</p><p><strong>Ubicacion:</strong> {{ warehouse.location }}</p><p><strong>Total productos:</strong> {{ total_products }}</p><p><strong>Total items:</strong> {{ total_items }}</p></div></div>
+{% endblock %}

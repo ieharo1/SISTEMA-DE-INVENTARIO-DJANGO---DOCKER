@@ -216,7 +216,7 @@ class MovementService:
         inventory_to.save()
         inventory_to.refresh_from_db()
         
-        # Crear registro Kardex para salida de origen
+        # Kardex is OneToOne with movement, so transfer stores a single consolidated record.
         Kardex.objects.create(
             company=product.company,
             movement=movement,
@@ -231,26 +231,7 @@ class MovementService:
             balance_value=inventory_from.quantity * unit_cost,
             unit_cost=unit_cost,
             reference=reference,
-            notes=f"Transferencia a {warehouse_to.name}: {notes}",
-            created_by=created_by
-        )
-        
-        # Crear registro Kardex para entrada en destino
-        Kardex.objects.create(
-            company=product.company,
-            movement=movement,
-            product=product,
-            warehouse=warehouse_to,
-            movement_type='TRANSFER',
-            input_quantity=quantity,
-            output_quantity=0,
-            balance_quantity=inventory_to.quantity,
-            input_value=unit_cost * quantity,
-            output_value=0,
-            balance_value=inventory_to.quantity * unit_cost,
-            unit_cost=unit_cost,
-            reference=reference,
-            notes=f"Transferencia desde {warehouse_from.name}: {notes}",
+            notes=f"Transferencia {warehouse_from.code} -> {warehouse_to.code}: {notes}",
             created_by=created_by
         )
         

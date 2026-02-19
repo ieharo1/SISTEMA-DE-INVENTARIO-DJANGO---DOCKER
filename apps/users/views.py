@@ -5,10 +5,15 @@ from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.db import transaction
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Sum, F
 from django.utils import timezone
 from .models import User, Company
-from .forms import UserCreationCustomForm, UserChangeCustomForm, CompanyForm
+from apps.products.models import Product, Category
+from apps.suppliers.models import Supplier
+from apps.warehouses.models import Warehouse
+from apps.inventory.models import Inventory
+from apps.movements.models import Movement
+from .forms import UserCreationCustomForm, UserChangeCustomForm, UserProfileForm, CompanyForm
 from apps.audit.decorators import audit_method
 from apps.audit.models import AuditLog
 import logging
@@ -51,8 +56,19 @@ def logout_view(request):
 @login_required
 def dashboard(request):
     """Dashboard principal"""
+    low_stock_products = (
+        Inventory.objects.filter(
+            quantity__lte=F("min_stock"),
+            product__is_deleted=False,
+            warehouse__is_deleted=False,
+        )
+        .select_related("product", "warehouse")
+        .order_by("quantity")[:10]
+    )
+
     context = {
         "total_products": Product.objects.filter(is_deleted=False).count(),
+        "total_categories": Category.objects.filter(is_deleted=False).count(),
         "total_warehouses": Warehouse.objects.filter(is_deleted=False).count(),
         "total_suppliers": Supplier.objects.filter(is_deleted=False).count(),
         "low_stock_count": Inventory.objects.filter(
@@ -61,8 +77,9 @@ def dashboard(request):
             warehouse__is_deleted=False,
         ).count(),
         "recent_movements": Movement.objects.select_related(
-            "product", "warehouse", "created_by"
+            "product", "warehouse_from", "warehouse_to", "created_by"
         ).order_by("-created_at")[:10],
+        "low_stock_products": low_stock_products,
         "stock_by_warehouse": Inventory.objects.values("warehouse__name")
         .annotate(total=Sum("quantity"))
         .order_by("-total")[:5],
@@ -184,7 +201,7 @@ def profile(request):
     user = request.user
 
     if request.method == "POST":
-        form = UserChangeCustomForm(request.POST, request.FILES, instance=user)
+        form = UserProfileForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             with transaction.atomic():
                 form.save()
@@ -192,10 +209,16 @@ def profile(request):
                 logger.info(f"Usuario {user.username} actualizó su perfil")
             return redirect("users:profile")
     else:
-        form = UserChangeCustomForm(instance=user)
+        form = UserProfileForm(instance=user)
 
     context = {"form": form, "is_profile": True}
     return render(request, "users/profile.html", context)
+
+
+@login_required
+def about(request):
+    """Pagina About corporativa."""
+    return render(request, "users/about.html")
 
 
 @login_required

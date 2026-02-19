@@ -14,4 +14,6 @@ urlpatterns = [
     # Categorías
     path('categories/', views.category_list, name='category_list'),
     path('categories/create/', views.category_create, name='category_create'),
+    path('categories/<uuid:pk>/edit/', views.category_edit, name='category_edit'),
+    path('categories/<uuid:pk>/delete/', views.category_delete, name='category_delete'),
 ]

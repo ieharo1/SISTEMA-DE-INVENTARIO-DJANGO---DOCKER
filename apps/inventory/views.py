@@ -17,7 +17,7 @@ def inventory_list(request):
     
     inventory_list = Inventory.objects.filter(
         company=request.user.company
-    ).select_related('product', 'warehouse')
+    ).select_related('product', 'warehouse').order_by('product__name', 'warehouse__name')
     
     if product_id:
         inventory_list = inventory_list.filter(product_id=product_id)

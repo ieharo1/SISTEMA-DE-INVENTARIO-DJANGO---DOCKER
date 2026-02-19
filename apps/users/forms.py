@@ -62,3 +62,32 @@ class CompanyForm(forms.ModelForm):
             'logo': forms.FileInput(attrs={'class': 'form-control'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'first_name',
+            'last_name',
+            'phone',
+            'position',
+            'avatar',
+        )
+        widgets = {
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'correo@empresa.com'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Apellidos'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+593...'}),
+            'position': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Cargo'}),
+            'avatar': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.help_text = ""
+            css_class = field.widget.attrs.get("class", "")
+            if "form-control" not in css_class and "form-check-input" not in css_class:
+                field.widget.attrs["class"] = f"{css_class} form-control".strip()

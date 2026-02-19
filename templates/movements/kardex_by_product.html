@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Kardex por Producto{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Kardex de {{ product.name }}</h1>
+<table class="table table-striped"><thead><tr><th>Fecha</th><th>Tipo</th><th>Entrada</th><th>Salida</th><th>Saldo</th></tr></thead><tbody>{% for k in kardex %}<tr><td>{{ k.created_at|date:"d/m/Y H:i" }}</td><td>{{ k.get_movement_type_display }}</td><td>{{ k.input_quantity }}</td><td>{{ k.output_quantity }}</td><td>{{ k.balance_quantity }}</td></tr>{% empty %}<tr><td colspan="5" class="text-center text-muted">No hay registros.</td></tr>{% endfor %}</tbody></table>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Detalle Proveedor{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">{{ supplier.name }}</h1>
+<div class="card"><div class="card-body"><p><strong>Identificacion:</strong> {{ supplier.identification }}</p><p><strong>Email:</strong> {{ supplier.email }}</p><p><strong>Telefono:</strong> {{ supplier.phone }}</p><p><strong>Direccion:</strong> {{ supplier.address }}</p></div></div>
+{% endblock %}

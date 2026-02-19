@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Auditoria{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Auditoria</h1>
+<table class="table table-striped"><thead><tr><th>Fecha</th><th>Usuario</th><th>Accion</th><th>Objeto</th><th class="text-end">Detalle</th></tr></thead><tbody>{% for a in audits %}<tr><td>{{ a.created_at|date:"d/m/Y H:i" }}</td><td>{{ a.username|default:"Sistema" }}</td><td>{{ a.action }}</td><td>{{ a.object_repr }}</td><td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{% url "audit:audit_detail" a.pk %}">Ver</a></td></tr>{% empty %}<tr><td colspan="5" class="text-center text-muted">No hay auditorias.</td></tr>{% endfor %}</tbody></table>
+{% endblock %}

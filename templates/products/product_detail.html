@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Detalle Producto{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h1 class="h3 mb-1"><i class="bi bi-box"></i> {{ product.name }}</h1>
+    <p class="text-muted mb-0">Ficha de producto y datos comerciales</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-warning" href="{% url "products:product_edit" product.pk %}">
+      <i class="bi bi-pencil-square"></i> Editar
+    </a>
+    <a class="btn btn-outline-danger" href="{% url "products:product_delete" product.pk %}">
+      <i class="bi bi-trash"></i> Eliminar
+    </a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="text-muted small">SKU</div>
+            <div class="fw-semibold">{{ product.sku }}</div>
+          </div>
+          <div class="col-md-6">
+            <div class="text-muted small">Categoria</div>
+            <div class="fw-semibold">{{ product.category.name }}</div>
+          </div>
+          <div class="col-md-6">
+            <div class="text-muted small">Precio compra</div>
+            <div class="fw-semibold">${{ product.cost_price }}</div>
+          </div>
+          <div class="col-md-6">
+            <div class="text-muted small">Precio venta</div>
+            <div class="fw-semibold">${{ product.sale_price }}</div>
+          </div>
+          <div class="col-12">
+            <div class="text-muted small">Descripcion</div>
+            <div>{{ product.description|default:"Sin descripcion." }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="text-muted small">Stock total</div>
+        <div class="display-6 fw-bold">{{ total_stock }}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div class="text-muted small">Estado</div>
+        {% if product.is_active %}
+          <span class="badge bg-success fs-6">Activo</span>
+        {% else %}
+          <span class="badge bg-danger fs-6">Inactivo</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

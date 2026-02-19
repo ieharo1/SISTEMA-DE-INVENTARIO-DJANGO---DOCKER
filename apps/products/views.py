@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
-from django.db import transaction
+from django.db import models, transaction
 from django.core.paginator import Paginator
 from django.db.models import Q, F, Sum
 from django.utils import timezone
@@ -71,7 +71,7 @@ def product_detail(request, pk):
     
     # Obtener movimientos recientes
     recent_movements = product.movements.select_related(
-        'warehouse', 'created_by'
+        'warehouse_from', 'warehouse_to', 'created_by'
     ).order_by('-created_at')[:10]
     
     context = {
@@ -188,3 +188,55 @@ def category_create(request):
         )
     
     return render(request, 'products/category_form.html', {'form': form})
+
+
+@login_required
+@permission_required('products.change_category', raise_exception=True)
+def category_edit(request, pk):
+    """Editar categoria"""
+    category = get_object_or_404(
+        Category,
+        pk=pk,
+        company=request.user.company,
+        is_deleted=False,
+    )
+
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            with transaction.atomic():
+                form.save()
+                messages.success(request, f'Categoria {category.name} actualizada')
+            return redirect('products:category_list')
+    else:
+        form = CategoryForm(instance=category)
+        form.fields['parent'].queryset = Category.objects.filter(
+            company=request.user.company,
+            is_deleted=False,
+        ).exclude(pk=category.pk)
+
+    return render(
+        request,
+        'products/category_form.html',
+        {'form': form, 'title': 'Editar Categoria', 'category': category},
+    )
+
+
+@login_required
+@permission_required('products.delete_category', raise_exception=True)
+def category_delete(request, pk):
+    """Eliminar categoria (soft delete)"""
+    category = get_object_or_404(
+        Category,
+        pk=pk,
+        company=request.user.company,
+        is_deleted=False,
+    )
+
+    if request.method == 'POST':
+        with transaction.atomic():
+            category.delete()
+            messages.success(request, f'Categoria {category.name} eliminada')
+        return redirect('products:category_list')
+
+    return render(request, 'products/category_confirm_delete.html', {'object': category})
